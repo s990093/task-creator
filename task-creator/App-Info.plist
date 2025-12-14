@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>NSSpeechRecognitionUsageDescription</key>
+    <string>我們需要語音辨識權限來讓您與 AI 助理對話。</string>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>我們需要麥克風權限來接收您的語音輸入。</string>
+    <key>NSCameraUsageDescription</key>
+    <string>我們需要相機權限來偵測您的閱讀姿勢。</string>
+</dict>
+</plist>
