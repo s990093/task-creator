@@ -129,6 +129,18 @@ class TaskViewModel: ObservableObject {
         if let savedCategories = UserDefaults.standard.data(forKey: "categories"),
            let decodedCategories = try? JSONDecoder().decode([Category].self, from: savedCategories) {
             categories = decodedCategories
+            
+            // Ensure all system default categories exist
+            for defaultCategory in Category.defaults {
+                if !categories.contains(where: { $0.name == defaultCategory.name }) {
+                    categories.append(defaultCategory)
+                }
+            }
+            
+            // Save updated categories if we added any defaults
+            if categories.count != decodedCategories.count {
+                saveCategories()
+            }
         } else {
             categories = Category.defaults
         }
