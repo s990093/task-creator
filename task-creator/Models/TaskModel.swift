@@ -13,7 +13,9 @@ struct Category: Identifiable, Codable, Hashable {
     }
     
     // Default Categories
-    static let defaults: [Category] = []
+    static let defaults: [Category] = [
+        Category(name: "今日任務", icon: "folder.fill", colorHex: "34C759", isSystem: true)
+    ]
 }
 
 struct TaskType: Identifiable, Codable, Hashable {

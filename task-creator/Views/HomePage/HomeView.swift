@@ -5,6 +5,7 @@ struct HomeView: View {
     @State private var opacity = 0.0
     @State private var showProfile = false
     @State private var showAIPlanner = false
+    @State private var showTaskCreation = false
     
     /// 今日的任務（依 dueDate 是否為今天判斷），並排序：未完成在前，已完成在後
     private var todayTasks: [Task] {
@@ -93,7 +94,7 @@ struct HomeView: View {
                     // Important Dates Section
                     ImportantDatesSectionView()
                     
-                    // Today's Tasks Section + AI Assistant
+                    // Today's Tasks Section + AI Assistant + Task Categories
                     HStack(spacing: 12) {
                         Text("今日任務")
                             .font(.headline)
@@ -101,6 +102,34 @@ struct HomeView: View {
                         
                         Spacer()
                         
+                        // Task Management Category Button
+                        Button {
+                            showTaskCreation = true
+                        } label: {
+                            HStack(spacing: 6) {
+                                Image(systemName: "folder.fill")
+                                Text("任務類別")
+                            }
+                            .font(.subheadline.weight(.semibold))
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 6)
+                            .background(
+                                LinearGradient(
+                                    colors: [Color.green, Color.teal],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                            .foregroundColor(.white)
+                            .cornerRadius(999)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 999)
+                                    .stroke(Color.white.opacity(0.4), lineWidth: 1)
+                            )
+                            .shadow(color: Color.black.opacity(0.3), radius: 10, x: 0, y: 6)
+                        }
+                        
+                        // AI Assistant Button
                         Button {
                             showAIPlanner = true
                         } label: {
@@ -143,6 +172,10 @@ struct HomeView: View {
         }
         .sheet(isPresented: $showAIPlanner) {
             AIStudyPlanSheet()
+                .environmentObject(viewModel)
+        }
+        .sheet(isPresented: $showTaskCreation) {
+            QuickTaskCreationSheet()
                 .environmentObject(viewModel)
         }
         .onAppear {
