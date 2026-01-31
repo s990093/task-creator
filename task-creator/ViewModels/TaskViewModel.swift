@@ -1,7 +1,10 @@
+
 import SwiftUI
 import Combine
-import UIKit // For HapticFeedback
+//import UIKit // For HapticFeedback
 import WidgetKit // For WidgetCenter
+import ActivityKit // For Live Activity
+ 
 class TaskViewModel: ObservableObject {
     // MARK: - App Group Configuration
     private let appGroupID = "group.task-creator.com.task-creator"
@@ -48,6 +51,9 @@ class TaskViewModel: ObservableObject {
         loadAIAnalysisRecords()
         loadImportantDates()
         loadCourses()
+        
+        // 啟動命令監聽器（用於 Live Activity 按鈕）
+        startCommandListener()
     }
     
     // MARK: - CRUD
@@ -365,6 +371,15 @@ class TaskViewModel: ObservableObject {
     private var timer: Timer?
     private var timerStartTime: Date?
     private var timerTargetEndTime: Date?
+    private var commandListenerTimer: Timer?
+    private var lastProcessedTimestamp: TimeInterval = 0
+    
+    // Live Activity
+    @available(iOS 16.1, *)
+    private var currentActivity: Activity<TimerWidgetAttributes>? {
+        get { Activity<TimerWidgetAttributes>.activities.first }
+        set { }
+    }
     
     // MARK: - Timer Logic
     
@@ -389,6 +404,16 @@ class TaskViewModel: ObservableObject {
         }
         
         isTimerRunning = true
+        
+        // 🎯 啟動 Live Activity (只需一次)
+        if #available(iOS 16.1, *) {
+            startLiveActivity()
+        }
+        
+        // 保存計時器狀態
+        saveTimerState()
+        
+        // 計時器每秒更新
         timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
             guard let self = self else { return }
             if self.timerMode == 2 {
@@ -402,6 +427,11 @@ class TaskViewModel: ObservableObject {
                     self.endSession(completed: true)
                 }
             }
+            
+            // 每秒更新 Live Activity 進度
+            if #available(iOS 16.1, *) {
+                self.updateLiveActivityProgress()
+            }
         }
     }
     
@@ -410,6 +440,13 @@ class TaskViewModel: ObservableObject {
         isTimerRunning = false
         timerTargetEndTime = nil
         cancelNotification()
+        
+        // 🎯 暫停時更新 Live Activity
+        if #available(iOS 16.1, *) {
+            updateLiveActivity(isPaused: true)
+        }
+        
+        saveTimerState()
     }
     
     func endSession(completed: Bool) {
@@ -432,6 +469,11 @@ class TaskViewModel: ObservableObject {
             )
         }
         
+        // 🎯 結束 Live Activity
+        if #available(iOS 16.1, *) {
+            endLiveActivity()
+        }
+        
         // Reset
         timerStartTime = nil
         if timerMode == 0 {
@@ -441,6 +483,8 @@ class TaskViewModel: ObservableObject {
         } else {
             timeRemaining = 0
         }
+        
+        clearTimerState()
     }
     
     func setTimerMode(_ mode: Int) {
@@ -460,6 +504,9 @@ class TaskViewModel: ObservableObject {
     }
     
     func checkBackgroundTime() {
+        // 從持久化狀態恢復
+        loadTimerState()
+        
         if isTimerRunning, let target = timerTargetEndTime {
             let remaining = target.timeIntervalSinceNow
             if remaining <= 0 {
@@ -467,6 +514,19 @@ class TaskViewModel: ObservableObject {
                 endSession(completed: true)
             } else {
                 timeRemaining = remaining
+                // 重新啟動 Timer
+                timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
+                    guard let self = self else { return }
+                    if self.timerMode == 2 {
+                        self.timeRemaining += 1
+                    } else {
+                        if self.timeRemaining > 0 {
+                            self.timeRemaining -= 1
+                        } else {
+                            self.endSession(completed: true)
+                        }
+                    }
+                }
             }
         }
     }
@@ -509,5 +569,258 @@ class TaskViewModel: ObservableObject {
     /// 使用 AI 潤色任務標題
     func polishTaskTitle(_ title: String) async throws -> String {
         try await aiService.polishTaskTitle(title)
+    }
+    
+    // MARK: - Weekly Memories (New Feature)
+    
+    @Published var weeklyMemories: [WeeklyMemory] = []
+    @Published var currentWeekMemory: WeeklyMemory?
+    
+    /// 用於測試：載入 Mock 數據
+    func loadTestWeeklyMemories() {
+        print("Loading test weekly memories...")
+        self.weeklyMemories = WeeklyMemory.samples
+        // 將最新的設為當前
+        if let first = weeklyMemories.first {
+            self.currentWeekMemory = first
+            print("Loaded current memory: \(first.weekTitle)")
+        } else {
+            print("No samples found.")
+        }
+    }
+    
+    /// 正式功能：生成指定日期的週回顧（尚未實作完整邏輯，目前僅返回空或 Mock）
+    func generateWeeklyMemory(for date: Date) -> WeeklyMemory {
+        // TODO: Implement actual logic to calculate stats from tasks/focusSessions
+        // For now, return a random sample or empty
+        return WeeklyMemory.sample
+    }
+    
+    func saveWeeklyMemory() {
+        if let encoded = try? JSONEncoder().encode(weeklyMemories) {
+            UserDefaults.standard.set(encoded, forKey: "weeklyMemories")
+        }
+    }
+    
+    func loadWeeklyMemories() {
+        if let savedMemories = UserDefaults.standard.data(forKey: "weeklyMemories"),
+           let decodedMemories = try? JSONDecoder().decode([WeeklyMemory].self, from: savedMemories) {
+            weeklyMemories = decodedMemories
+        }
+    }
+    
+    // MARK: - Live Activity Control
+    
+    /// 啟動 Live Activity（僅在計時器開始時調用一次）
+    @available(iOS 16.1, *)
+    func startLiveActivity() {
+        // 取得模式名稱
+        let modeName: String
+        switch timerMode {
+        case 0: modeName = "番茄鐘"
+        case 1: modeName = "倒計時"
+        case 2: modeName = "正計時"
+        default: modeName = "計時器"
+        }
+        
+        guard let targetTime = timerTargetEndTime else {
+            print("❌ 無法啟動 Live Activity：缺少目標結束時間")
+            return
+        }
+        
+        let attributes = TimerWidgetAttributes(
+            timerMode: modeName,
+            categoryName: timerCategory.name,
+            targetEndTime: targetTime
+        )
+        
+        let initialState = TimerWidgetAttributes.ContentState(
+            isPaused: false,
+            elapsedSeconds: 0,
+            totalSeconds: Int(totalTime)
+        )
+        
+        do {
+            let activity = try Activity.request(
+                attributes: attributes,
+                content: ActivityContent(state: initialState, staleDate: nil),
+                pushType: nil
+            )
+            print("✅ Live Activity 啟動成功：\(activity.id)")
+        } catch {
+            print("❌ Live Activity 啟動失敗：\(error)")
+        }
+    }
+    
+    /// 更新 Live Activity（僅在狀態變化時調用）
+    @available(iOS 16.1, *)
+    func updateLiveActivity(isPaused: Bool) {
+        guard let activity = currentActivity else {
+            print("⚠️ 沒有活動的 Live Activity 可更新")
+            return
+        }
+        
+        // 計算已經過的時間
+        let elapsed = Int(totalTime - timeRemaining)
+        
+        let updatedState = TimerWidgetAttributes.ContentState(
+            isPaused: isPaused,
+            elapsedSeconds: elapsed,
+            totalSeconds: Int(totalTime)
+        )
+        
+        _Concurrency.Task {
+            await activity.update(
+                ActivityContent(state: updatedState, staleDate: nil)
+            )
+            print("✅ Live Activity 已更新")
+        }
+    }
+    
+    /// 更新 Live Activity 進度（定期調用）
+    @available(iOS 16.1, *)
+    func updateLiveActivityProgress() {
+        guard let activity = currentActivity else { return }
+        
+        // 計算已經過的時間
+        let elapsed = Int(totalTime - timeRemaining)
+        
+        let updatedState = TimerWidgetAttributes.ContentState(
+            isPaused: !isTimerRunning,
+            elapsedSeconds: elapsed,
+            totalSeconds: Int(totalTime)
+        )
+        
+        _Concurrency.Task {
+            await activity.update(
+                ActivityContent(state: updatedState, staleDate: nil)
+            )
+        }
+    }
+    
+    /// 結束 Live Activity
+    @available(iOS 16.1, *)
+    func endLiveActivity() {
+        guard let activity = currentActivity else {
+            print("⚠️ 沒有活動的 Live Activity 可結束")
+            return
+        }
+        
+        let finalState = TimerWidgetAttributes.ContentState(
+            isPaused: false,
+            elapsedSeconds: Int(totalTime),
+            totalSeconds: Int(totalTime)
+        )
+        
+        _Concurrency.Task {
+            await activity.end(
+                ActivityContent(state: finalState, staleDate: nil),
+                dismissalPolicy: .default
+            )
+            print("✅ Live Activity 已結束")
+        }
+    }
+    
+    // MARK: - Timer State Persistence
+    
+    private struct TimerState: Codable {
+        let isRunning: Bool
+        let mode: Int
+        let targetEndTime: Date?
+        let startTime: Date?
+        let categoryName: String
+        let totalTime: TimeInterval
+        let timeRemaining: TimeInterval
+    }
+    
+    /// 保存計時器狀態到 UserDefaults
+    func saveTimerState() {
+        let state = TimerState(
+            isRunning: isTimerRunning,
+            mode: timerMode,
+            targetEndTime: timerTargetEndTime,
+            startTime: timerStartTime,
+            categoryName: timerCategory.name,
+            totalTime: totalTime,
+            timeRemaining: timeRemaining
+        )
+        
+        if let encoded = try? JSONEncoder().encode(state) {
+            UserDefaults.standard.set(encoded, forKey: "timerState")
+            print("✅ 計時器狀態已保存")
+        }
+    }
+    
+    /// 從 UserDefaults 載入計時器狀態
+    func loadTimerState() {
+        guard let savedState = UserDefaults.standard.data(forKey: "timerState"),
+              let state = try? JSONDecoder().decode(TimerState.self, from: savedState),
+              state.isRunning else {
+            return
+        }
+        
+        // 恢復狀態
+        isTimerRunning = state.isRunning
+        timerMode = state.mode
+        timerTargetEndTime = state.targetEndTime
+        timerStartTime = state.startTime
+        totalTime = state.totalTime
+        timeRemaining = state.timeRemaining
+        
+        // 恢復類別
+        if let category = categories.first(where: { $0.name == state.categoryName }) {
+            timerCategory = category
+        }
+        
+        print("✅ 計時器狀態已恢復")
+    }
+    
+    /// 清除計時器狀態
+    func clearTimerState() {
+        UserDefaults.standard.removeObject(forKey: "timerState")
+        print("🗑️ 計時器狀態已清除")
+    }
+    
+    // MARK: - Live Activity Command Listener
+    
+    /// 啟動命令監聽器（監聽 Live Activity 按鈕動作）
+    private func startCommandListener() {
+        let appGroupID = "group.com.taskcreator.timer"
+        commandListenerTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] _ in
+            guard let self = self else { return }
+            guard let sharedDefaults = UserDefaults(suiteName: appGroupID) else { return }
+            
+            // 檢查是否有新命令
+            let timestamp = sharedDefaults.double(forKey: "commandTimestamp")
+            if timestamp > self.lastProcessedTimestamp {
+                if let command = sharedDefaults.string(forKey: "timerCommand") {
+                    print("📥 收到命令: \(command)")
+                    self.handleCommand(command)
+                    self.lastProcessedTimestamp = timestamp
+                }
+            }
+        }
+    }
+    
+    /// 處理 Live Activity 命令
+    private func handleCommand(_ command: String) {
+        DispatchQueue.main.async {
+            switch command {
+            case "toggle":
+                if self.isTimerRunning {
+                    self.pauseTimer()
+                } else {
+                    self.startTimer()
+                }
+                print("⏯️ 計時器已切換狀態")
+                
+            case "stop":
+                self.endSession(completed: false)
+                print("⏹️ 計時器已停止")
+                
+            default:
+                break
+            }
+        }
     }
 }

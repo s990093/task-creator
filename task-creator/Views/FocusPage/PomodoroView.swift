@@ -2,21 +2,14 @@ import SwiftUI
 import UserNotifications
 
 struct PomodoroView: View {
-    @StateObject private var faceEstimator = FaceEstimator()
-    
     var body: some View {
-        TabView {
-            PomodoroTimerView(faceEstimator: faceEstimator)
-            FocusMonitorView(faceEstimator: faceEstimator, isMonitoring: $faceEstimator.isSessionActive)
-        }
-        .tabViewStyle(PageTabViewStyle(indexDisplayMode: .always))
-        .background(AppTheme.background)
-        .ignoresSafeArea()
+        PomodoroTimerView()
+            .background(AppTheme.background)
+            .ignoresSafeArea()
     }
 }
 
 struct PomodoroTimerView: View {
-    @ObservedObject var faceEstimator: FaceEstimator
     @EnvironmentObject var viewModel: TaskViewModel
     @Environment(\.scenePhase) var scenePhase
     
@@ -24,7 +17,6 @@ struct PomodoroTimerView: View {
     @State private var showGiveUpAlert = false
     @State private var showAnalysis = false
     @State private var showFocusMode = false
-    @State private var showSessionReport = false
     
     var timeString: String {
         let minutes = Int(viewModel.timeRemaining) / 60
@@ -196,7 +188,6 @@ struct PomodoroTimerView: View {
                     } else {
                         Button(action: {
                             viewModel.toggleTimer()
-                            faceEstimator.startSession()
                         }) {
                             HStack {
                                 Image(systemName: "play.fill")
@@ -267,8 +258,6 @@ struct PomodoroTimerView: View {
                             
                             Button(action: {
                                 viewModel.endSession(completed: false)
-                                faceEstimator.stopSession()
-                                showSessionReport = true
                                 withAnimation {
                                     showGiveUpAlert = false
                                 }
@@ -295,20 +284,14 @@ struct PomodoroTimerView: View {
         .fullScreenCover(isPresented: $showFocusMode) {
             FlipClockView(timeRemaining: $viewModel.timeRemaining, isRunning: $viewModel.isTimerRunning, totalTime: $viewModel.totalTime)
         }
-        .sheet(isPresented: $showSessionReport) {
-            SessionReportView(
-                sessionData: faceEstimator.sessionData,
-                totalReadingTime: faceEstimator.accumulatedReadingTime
-            )
-        }
+
         .onAppear {
             viewModel.requestNotificationPermission()
         }
         .onChange(of: viewModel.timeRemaining) { remaining in
             if remaining == 0 && viewModel.isTimerRunning {
                 // Timer finished naturally
-                faceEstimator.stopSession()
-                showSessionReport = true
+                // 可以在這裡添加完成提示
             }
         }
         .onChange(of: scenePhase) { newPhase in

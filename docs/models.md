@@ -29,6 +29,7 @@ struct Task: Identifiable, Codable {
 ```
 
 **示例**:
+
 ```swift
 let task = Task(
     id: UUID().uuidString,
@@ -42,6 +43,7 @@ let task = Task(
 ```
 
 **使用場景**:
+
 - TaskListView: 顯示在 Kanban 看板中
 - TaskCardView: 渲染為任務卡片
 - TaskViewModel: 管理任務列表的增刪改查
@@ -58,27 +60,29 @@ enum Category: String, CaseIterable, Codable, Identifiable {
     case math = "數學"
     case english = "英文"
     case other = "其他"
-    
+
     var id: String { self.rawValue }
-    
+
     // 背景色
     var backgroundColor: Color
-    
+
     // 前景色
     var foregroundColor: Color
-    
+
     // 圖示
     var icon: String
 }
 ```
 
 **顏色映射**:
+
 - **國文**: 橙色 (#FF9F0A) - 溫暖、人文
 - **數學**: 科技藍 (#007AFF) - 理性、邏輯
 - **英文**: 綠色 (#30D158) - 清新、國際化
 - **其他**: 灰色 - 中性
 
 **圖示映射**:
+
 - `book.fill` - 國文
 - `function` - 數學
 - `text.book.closed.fill` - 英文
@@ -98,6 +102,7 @@ enum Priority: String, Codable, CaseIterable {
 ```
 
 **UI 表現**:
+
 - `normal`: 無特殊標記
 - `urgent`: 顯示紅色"急"標籤
 
@@ -112,9 +117,9 @@ enum TaskType: String, CaseIterable, Codable, Identifiable {
     case academic = "學業"
     case life = "生活"
     case other = "其他"
-    
+
     var id: String { self.rawValue }
-    
+
     var icon: String {
         switch self {
         case .academic: return "book.closed"
@@ -143,6 +148,7 @@ struct Reflection: Identifiable, Codable {
 ```
 
 **示例**:
+
 ```swift
 let reflection = Reflection(
     id: UUID().uuidString,
@@ -170,6 +176,7 @@ enum Mood: String, Codable, CaseIterable {
 ```
 
 **使用場景**:
+
 - ReflectView: 心情選擇器
 - ReviewView: 心情趨勢圖表
 
@@ -190,6 +197,7 @@ struct FocusSession: Identifiable, Codable {
 ```
 
 **示例**:
+
 ```swift
 let session = FocusSession(
     id: UUID().uuidString,
@@ -201,6 +209,7 @@ let session = FocusSession(
 ```
 
 **數據統計**:
+
 ```swift
 // 計算今日總專注時間
 let todayDuration = sessions
@@ -230,6 +239,7 @@ enum Day: String, CaseIterable, Codable {
 ```
 
 **使用場景**:
+
 - WeeklyScheduleView: 週計劃顯示
 - 任務按星期分組
 
@@ -249,13 +259,15 @@ enum FocusStatus: String, Codable {
 ```
 
 **狀態轉換**:
+
 ```
 idle → focusing → break_ → focusing → idle
        ↓                    ↑
-     paused ← → → → → → → → 
+     paused ← → → → → → → →
 ```
 
 **使用場景**:
+
 - PomodoroView: 控制計時器行為
 - 背景通知提醒
 - UI 顯示不同狀態
@@ -275,6 +287,7 @@ struct AIAnalysisRecord: Codable, Identifiable {
 ```
 
 **內容格式**:
+
 ```
 本週表現分析
 
@@ -292,8 +305,80 @@ struct AIAnalysisRecord: Codable, Identifiable {
 ```
 
 **使用場景**:
+
 - AICoachView: 顯示最新週報
 - 歷史記錄列表
+
+---
+
+#### 11. TimerWidgetAttributes (Live Activity 數據模型)
+
+**用途**: 定義 Timer Widget Live Activity 的靜態和動態數據
+
+**位置**: `/Models/TimerWidgetAttributes.swift`
+
+```swift
+@available(iOS 16.1, *)
+public struct TimerWidgetAttributes: ActivityAttributes {
+    // 靜態數據（創建時設定，之後不變）
+    public var timerMode: String        // "番茄鐘", "倒計時", "正計時"
+    public var categoryName: String     // 任務類別名稱
+    public var targetEndTime: Date      // 目標結束時間
+
+    // 動態數據（可更新）
+    public struct ContentState: Codable, Hashable {
+        public var isPaused: Bool       // 暫停狀態
+        public var elapsedSeconds: Int  // 已經過秒數
+        public var totalSeconds: Int    // 總秒數
+
+        // 計算屬性
+        public var progress: Double {   // 進度（0.0 ~ 1.0）
+            guard totalSeconds > 0 else { return 0 }
+            return min(Double(elapsedSeconds) / Double(totalSeconds), 1.0)
+        }
+
+        public var remainingSeconds: Int {  // 剩餘秒數
+            max(totalSeconds - elapsedSeconds, 0)
+        }
+    }
+}
+```
+
+**示例**:
+
+```swift
+// 創建 Live Activity
+let attributes = TimerWidgetAttributes(
+    timerMode: "番茄鐘",
+    categoryName: "數學作業",
+    targetEndTime: Date().addingTimeInterval(1500)
+)
+
+let initialState = TimerWidgetAttributes.ContentState(
+    isPaused: false,
+    elapsedSeconds: 0,
+    totalSeconds: 1500
+)
+
+let activity = try Activity.request(
+    attributes: attributes,
+    content: ActivityContent(state: initialState, staleDate: nil),
+    pushType: nil
+)
+```
+
+**數據流程**:
+
+1. **創建**: `TaskViewModel.startLiveActivity()` 創建 Live Activity
+2. **更新**: `TaskViewModel.updateLiveActivity(isPaused:)` 更新暫停狀態
+3. **結束**: `TaskViewModel.endLiveActivity()` 結束 Live Activity
+
+**Target Membership**:
+
+- ✅ task-creator (主應用)
+- ✅ TimerWidgetExtension
+
+**相關文檔**: [Widgets](widgets.md) | [ViewModels](viewmodels.md#taskviewmodel)
 
 ---
 
@@ -304,13 +389,13 @@ graph TD
     Task --> Category
     Task --> Priority
     Task --> TaskType
-    
+
     FocusSession --> Category
-    
+
     Reflection --> Mood
-    
+
     AIAnalysisRecord
-    
+
     TaskViewModel --> Task
     TaskViewModel --> FocusSession
     TaskViewModel --> Reflection
@@ -343,6 +428,7 @@ if let data = UserDefaults.standard.data(forKey: "tasks"),
 ### 計劃添加的模型
 
 1. **Goal (目標)**
+
 ```swift
 struct Goal: Identifiable, Codable {
     let id: String
@@ -354,6 +440,7 @@ struct Goal: Identifiable, Codable {
 ```
 
 2. **Habit (習慣)**
+
 ```swift
 struct Habit: Identifiable, Codable {
     let id: String
@@ -365,6 +452,7 @@ struct Habit: Identifiable, Codable {
 ```
 
 3. **Note (筆記)**
+
 ```swift
 struct Note: Identifiable, Codable {
     let id: String
@@ -381,6 +469,7 @@ struct Note: Identifiable, Codable {
 ## 📝 最佳實踐
 
 ### 1. 使用工廠方法
+
 ```swift
 extension Task {
     static func create(title: String, category: Category) -> Task {
@@ -398,12 +487,13 @@ extension Task {
 ```
 
 ### 2. 計算屬性
+
 ```swift
 extension Task {
     var isOverdue: Bool {
         !completed && dueDate < Date()
     }
-    
+
     var formattedDueDate: String {
         dueDate.formatted(.dateTime.month().day())
     }
@@ -411,6 +501,7 @@ extension Task {
 ```
 
 ### 3. 類型安全的 ID
+
 ```swift
 // 避免字符串 ID 混淆
 typealias TaskID = String

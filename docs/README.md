@@ -23,32 +23,45 @@ TaskFlow 是一個為學生設計的全功能生產力應用，整合了以下�
 
 ```
 task-creator/
-├── Models/                 # 數據模型
-│   └── TaskModel.swift
-├── ViewModels/            # 視圖模型
-│   └── TaskViewModel.swift
-├── Services/              # 服務層
-│   └── AIAnalysisService.swift
-├── Views/                 # 視圖層
-│   ├── Main/             # 主要視圖 (Tab Bar, Onboarding)
-│   ├── Home/             # 首頁 (Progress Card, Dashboard)
-│   ├── Tasks/            # 任務管理 (Kanban, Cards)
-│   ├── Focus/            # 專注計時 (Pomodoro, Flip Clock)
-│   └── Me/               # 個人中心 (AI Coach, Profile)
-├── Utilities/            # 工具類
-│   └── DesignSystem.swift
-└── docs/                 # 項目文檔
+├── Models/                      # 數據模型
+│   ├── TaskModel.swift          # 任務、類別、專注會話等核心模型
+│   └── TimerWidgetAttributes.swift  # Live Activity 數據模型
+├── ViewModels/                  # 視圖模型
+│   └── TaskViewModel.swift      # 任務與計時器狀態管理
+├── Services/                    # 服務層
+│   └── AIAnalysisService.swift  # AI 分析服務
+├── Views/                       # 視圖層
+│   ├── Main/                    # 主要視圖 (Tab Bar, Onboarding)
+│   ├── Home/                    # 首頁 (Progress Card, Dashboard)
+│   ├── Tasks/                   # 任務管理 (Kanban, Cards)
+│   ├── Focus/                   # 專注計時 (Pomodoro, Flip Clock)
+│   └── Me/                      # 個人中心 (AI Coach, Profile)
+├── Utilities/                   # 工具類
+│   └── DesignSystem.swift       # 設計系統與常量
+├── DailyTaskWidget/             # 每日任務小工具
+│   ├── DailyTaskWidget.swift    # 桌面小工具
+│   └── DailyTaskWidgetLiveActivity.swift
+├── TimerWidget/                 # 計時器小工具 (iOS 16.1+)
+│   └── TimerWidgetLiveActivity.swift  # Live Activity UI
+└── docs/                        # 項目文檔
+    ├── README.md                # 項目概述
+    ├── models.md                # 數據模型說明
+    ├── viewmodels.md            # 視圖模型說明
+    ├── widgets.md               # Widget 與 Live Activity
+    └── ...
 ```
 
 ## 📚 文檔導航
 
 ### 核心文檔
+
 - [架構說明](architecture.md) - 項目架構與設計模式
 - [數據模型](models.md) - Task, Category, FocusSession 等
 - [視圖模型](viewmodels.md) - TaskViewModel 狀態管理
 - [服務層](services.md) - AI 分析服務
 
 ### 視圖文檔
+
 - [主要視圖](views-main.md) - ContentView, TabBar, Onboarding
 - [首頁視圖](views-home.md) - HomeView, ProgressCard, RobotMascot
 - [任務視圖](views-tasks.md) - Kanban Board, Task Cards, Edit Forms
@@ -59,6 +72,7 @@ task-creator/
 ## 🚀 快速開始
 
 ### 環境要求
+
 - Xcode 15.0+
 - iOS 17.0+
 - Swift 5.9+
@@ -66,29 +80,34 @@ task-creator/
 ### 安裝步驟
 
 1. **克隆項目**
+
 ```bash
 git clone <repository-url>
 cd task-creator
 ```
 
 2. **打開項目**
+
 ```bash
 open task-creator.xcodeproj
 ```
 
 3. **配置 API Key**
-在 `AIAnalysisService.swift` 中設置你的 OpenAI API Key：
+   在 `AIAnalysisService.swift` 中設置你的 OpenAI API Key：
+
 ```swift
 private let apiKey = "YOUR_API_KEY_HERE"
 ```
 
 4. **運行應用**
+
 - 選擇目標設備（iPhone 模擬器或真機）
 - 點擊 Run (⌘R)
 
 ## ✨ 主要功能
 
 ### 1. 專注計時器 (Focus)
+
 - **3 種視覺風格**:
   - 🎴 **Flip Clock** - 3D 翻轉數字動畫
   - 🔢 **Digital** - 數字時鐘 + 進度環
@@ -96,39 +115,69 @@ private let apiKey = "YOUR_API_KEY_HERE"
 - **計時模式**: Pomodoro (25分鐘), Countdown, Stopwatch
 - **背景通知**: App 進入後台仍持續計時
 - **專注記錄**: 自動記錄每次專注會話
+- **Live Activity** (iOS 16.1+):
+  - 🔒 鎖定螢幕顯示：圓形進度環 + 即時倒數
+  - 🏝️ 靈動島支持：進度條 + 互動按鈕（iPhone 14 Pro+）
+  - 🎨 現代設計：漸層色彩 + 豐富信息顯示
 
 ### 2. 任務管理 (Tasks)
+
 - **Kanban 看板**: 按類別（國文、數學、英文）分欄顯示
 - **彩色標籤**: 類別色彩條 + 狀態膠囊徽章
 - **FAB 按鈕**: 浮動操作按鈕快速建立任務
 - **智能狀態**: 自動判斷已完成/進行中/逾期
 
 ### 3. 首頁儀表板 (Home)
+
 - **機器人吉祥物**: 根據進度變化顏色與表情
 - **進度可視化**: 圓環進度 + 線性進度條
 - **任務預覽**: 顯示今日前 3 個任務
 
 ### 4. AI 教練 (Me)
+
 - **週報生成**: 分析本週學習數據
 - **策略建議**: AI 提供下週改進建議
 - **歷史記錄**: 保存所有過往週報
 
+### 5. 數據管理
+
+- **📤 匯出學習紀錄**:
+  - 將所有任務、專注會話、反思記錄匯出為 JSON 文件
+  - 使用標準 iOS 分享功能（AirDrop、iCloud、郵件等）
+  - ISO8601 日期格式確保跨平台兼容
+- **📥 匯入學習紀錄**:
+  - 從 JSON 文件還原數據
+  - 支持數據遷移和備份
+  - 匯入前顯示確認警告，防止意外覆蓋
+
+### 6. Live Activity 互動
+
+- **鎖定螢幕控制** (iOS 16.1+):
+  - ⏸️ **暫停/繼續按鈕**: 即時切換計時器狀態
+  - ⏹️ **停止按鈕**: 結束計時並關閉 Live Activity
+  - 🔄 **即時更新**: 每秒更新進度和時間
+  - 🎨 **動態顏色**: 按狀態變化按鈕顏色（綠/橙/紅）
+
 ## 🎯 核心技術
 
 ### SwiftUI
+
 - **聲明式 UI**: 使用 SwiftUI 構建所有界面
 - **狀態管理**: @State, @Binding, @EnvironmentObject
 - **動畫系統**: Spring, Linear, Timing Curve
 
 ### Combine
+
 - **響應式編程**: Timer.publish 用於計時器
 - **數據流**: Published 屬性自動更新 UI
 
 ### UserDefaults
+
 - **本地持久化**: 保存任務、專注記錄、AI 報告
 - **編碼解碼**: Codable 協議實現自動序列化
 
 ### OpenAI API
+
 - **GPT 集成**: 使用 GPT-4 分析學習數據
 - **自然語言**: 生成中文週報與建議
 
@@ -150,6 +199,7 @@ private let apiKey = "YOUR_API_KEY_HERE"
 ### 修改 AI 提示詞
 
 編輯 `AIAnalysisService.swift` 中的 `analyzePerformance` 方法：
+
 ```swift
 let prompt = """
 你是一位專業的學習教練...
@@ -165,7 +215,16 @@ let prompt = """
 
 ## 📝 更新日誌
 
+### v1.3.0 (2026-01-31)
+
+- ✅ **Live Activity 互動按鈕**: 鎖定螢幕可直接暫停/繼續/停止計時器
+- ✅ **數據匯出/匯入**: 支持完整學習記錄的備份和遷移
+- ✅ **優化 UI 排版**: Live Activity 按鈕移至左側，節省空間
+- ✅ **移除相機功能**: 簡化計時器界面，專注於核心功能
+- 🐛 **修復顏色錯誤**: 解決 Category 顏色初始化問題
+
 ### v1.0.0 (2025-12-02)
+
 - ✅ 完成核心功能開發
 - ✅ 實現 3 種計時器樣式
 - ✅ 重新設計 Kanban 看板

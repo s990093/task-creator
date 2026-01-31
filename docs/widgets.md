@@ -1,6 +1,6 @@
 # Widget Extension 文檔
 
-本項目包含一個 Widget Extension，提供桌面小工具與即時動態 (Live Activity) 功能，讓用戶無需打開 App 即可查看任務與專注狀態。
+本項目包含兩個 Widget Extensions，提供桌面小工具與即時動態 (Live Activity) 功能，讓用戶無需打開 App 即可查看任務與專注狀態。
 
 ## 📱 DailyTaskWidget (桌面小工具)
 
@@ -9,16 +9,20 @@
 ### 核心組件
 
 #### 1. DailyTaskWidgetProvider
+
 負責管理 Widget 的時間線 (Timeline) 更新。
+
 - **Placeholder**: 提供預覽用的假數據。
 - **Snapshot**: 提供 Widget 庫預覽的快照。
-- **Timeline**: 
+- **Timeline**:
   - 讀取共享的 `UserDefaults` (App Group: `group.task-creator.com.task-creator`)。
   - 獲取今日任務數據。
   - 設定每 15 分鐘刷新一次。
 
 #### 2. DailyTaskWidgetEntryView
+
 Widget 的主要視圖層。
+
 - **背景**: 統一使用暖色調背景 (`#FFF3D9`)，營造溫馨感。
 - **內容**:
   - **標題區**: 顯示 "準備好..." 與派對圖標。
@@ -27,24 +31,268 @@ Widget 的主要視圖層。
     - 按鈕背景色: 亮橙色 (`#FF7A1A`)。
 
 ### 數據共享
+
 Widget 與主 App 通過 **App Groups** 共享數據。
+
 - **Key**: `tasks`
 - **格式**: JSON 編碼的 `[Task]` 數組。
 
-## ⚡ DailyTaskWidgetLiveActivity (即時動態)
+---
 
-提供鎖屏與動態島 (Dynamic Island) 的即時狀態顯示。
+## ⏱️ TimerWidget (計時器 Live Activity)
 
-### 功能
-- **動態島**: 適配靈動島的 Compact, Minimal, Expanded 等多種狀態。
-- **鎖屏通知**: 在鎖屏畫面上顯示當前專注或任務狀態。
+`TimerWidgetLiveActivity` 提供現代化的計時器即時動態顯示，支持鎖定螢幕和靈動島 (Dynamic Island)。
+
+### 📊 數據模型
+
+#### TimerWidgetAttributes
+
+定義 Live Activity 的靜態和動態數據。
+
+**位置**: `task-creator/Models/TimerWidgetAttributes.swift`
+
+```swift
+@available(iOS 16.1, *)
+public struct TimerWidgetAttributes: ActivityAttributes {
+    // 靜態數據（創建時設定）
+    public var timerMode: String        // "番茄鐘", "倒計時", "正計時"
+    public var categoryName: String     // 任務類別名稱
+    public var targetEndTime: Date      // 目標結束時間
+
+    // 動態數據（可更新）
+    public struct ContentState: Codable, Hashable {
+        public var isPaused: Bool
+        public var elapsedSeconds: Int   // 已經過秒數
+        public var totalSeconds: Int     // 總秒數
+
+        // 計算屬性
+        public var progress: Double      // 0.0 ~ 1.0
+        public var remainingSeconds: Int // 剩餘時間
+    }
+}
+```
+
+### 🎨 UI 設計
+
+#### 1. 鎖定螢幕 (Lock Screen)
+
+**布局特色**:
+
+- **左側**: 圓形進度環
+  - 漸層色彩（綠色系運行中/橙色系已暫停）
+  - 中心顯示模式圖標和進度百分比
+  - 尺寸: 80x80pt，線寬 8pt
+- **右側**: 信息面板
+  - 計時器模式標題
+  - 任務類別名稱
+  - 大字號倒數計時器（SF Pro Rounded）
+  - 已用時間 ⏰ / 剩餘時間 ⏳
+
+**視覺效果**:
+
+```
+┌─────────────────────────────────────┐
+│  ┌──────┐   番茄鐘                   │
+│  │  🍅  │   數學作業                 │
+│  │ 80%  │   ─────────                │
+│  └──────┘   25:00                    │
+│             (Gradient)                │
+│             ⏰ 05:00  ⏳ 20:00       │
+└─────────────────────────────────────┘
+```
+
+#### 2. 靈動島 - Expanded (展開狀態)
+
+**區域劃分**:
+
+- **Leading (左側)**: 模式圖標 + 任務名稱
+- **Center (中央)**:
+  - 大字號計時器（32pt, 漸層顏色）
+  - 線性進度條（8pt 高，圓角 4pt）
+  - 進度百分比
+- **Trailing (右側)**: 已用/剩餘時間標籤
+- **Bottom (底部)**: 互動按鈕
+  - ⏸/▶ 暫停/繼續按鈕（動態切換）
+  - ⏹ 停止按鈕（紅色提示）
+
+**視覺效果**:
+
+```
+┌──────────────────────────────────────────┐
+│ 🍅 番茄鐘                   ⏰ 05:00     │
+│    數學作業                 ⏳ 20:00     │
+│                                          │
+│           25:00                          │
+│      (Large Gradient)                    │
+│                                          │
+│    ████████████░░░░░░  80%               │
+│                                          │
+│ [⏸ 暫停]            [⏹ 停止]            │
+└──────────────────────────────────────────┘
+```
+
+#### 3. 靈動島 - Compact (緊湊狀態)
+
+**左側**: 模式圖標（🍅/⏱/⏰）  
+**右側**: 圓形進度環 + 倒數計時器
+
+- 進度環動畫顯示進度
+- 時間文字居中（10pt）
+- 尺寸: 32x32pt
+
+```
+🍅  [ ○───────● ]  25:00
+```
+
+#### 4. 靈動島 - Minimal (迷你狀態)
+
+模式圖標疊加圓形進度指示器。
+
+```
+[ ○ 🍅 ● ]
+```
+
+### 🎨 色彩系統
+
+| 狀態   | 主色             | 漸層            | 用途           |
+| ------ | ---------------- | --------------- | -------------- |
+| 運行中 | Green (#4CAF50)  | Green → Mint    | 進度環、進度條 |
+| 已暫停 | Orange (#FF9800) | Orange → Yellow | 進度環、進度條 |
+| 按鈕   | -                | 半透明色塊      | 背景提示       |
+
+### 🔄 狀態管理
+
+#### Live Activity 生命週期
+
+1. **啟動** (`startLiveActivity`)
+   - 在計時器開始時調用
+   - 創建 `TimerWidgetAttributes` 和初始 `ContentState`
+   - 使用 `Activity.request()` 啟動
+
+2. **更新** (`updateLiveActivity`)
+   - 在暫停/繼續時調用
+   - 更新 `isPaused` 狀態
+   - 使用 `activity.update()` 推送新狀態
+
+3. **結束** (`endLiveActivity`)
+   - 計時器結束或停止時調用
+   - 使用 `activity.end()` 關閉
+   - 設定 `dismissalPolicy` 為 `.default`
+
+#### 數據同步
+
+Live Activity 使用系統自動倒數：
+
+- `targetEndTime` 由系統自動計算剩餘時間
+- 無需手動更新倒數計時器
+- 僅在狀態變化（暫停/繼續）時推送更新
+
+### 🔘 互動功能
+
+#### App Intents (佔位符)
+
+```swift
+struct ToggleTimerIntent: AppIntent {
+    static var title: LocalizedStringResource = "Toggle Timer"
+    func perform() async throws -> some IntentResult
+}
+
+struct StopTimerIntent: AppIntent {
+    static var title: LocalizedStringResource = "Stop Timer"
+    func perform() async throws -> some IntentResult
+}
+```
+
+> **注意**: 當前按鈕為佔位符實現。完整功能需要：
+>
+> - 通過 App Groups 與主應用通訊
+> - 實現狀態同步機制
+> - 處理按鈕點擊事件
+
+---
 
 ## 🛠️ 最近更新
 
-### UI 優化 (2025-12-02)
-- **背景統一**: 移除原有的漸層背景，改為統一的暖色背景 (`#FFF3D9`)，提升視覺一致性。
-- **按鈕樣式**: "開始專注" 按鈕改為純色背景 (`#FF7A1A`)，增強對比度與可讀性。
+### Timer Live Activity UI 增強 (2026-01-31)
+
+- ✅ **圓形進度環**: 漸層色彩，流暢動畫
+- ✅ **線性進度條**: 現代設計，清晰反饋
+- ✅ **互動按鈕**: 暫停/繼續、停止功能
+- ✅ **豐富信息**: 已用/剩餘時間、進度百分比
+- ✅ **數據模型增強**: 新增 `elapsedSeconds`、`totalSeconds`
+- ✅ **漸層視覺**: SF Pro Rounded 字體，現代配色
+
+### DailyTaskWidget UI 優化 (2025-12-02)
+
+- **背景統一**: 移除原有的漸層背景，改為統一的暖色背景 (`#FFF3D9`)
+- **按鈕樣式**: "開始專注" 按鈕改為純色背景 (`#FF7A1A`)
+
+---
+
+## 📦 框架依賴
+
+### TimerWidget
+
+```swift
+import ActivityKit    // Live Activity 支持
+import WidgetKit      // Widget 配置
+import SwiftUI        // UI 組件
+import AppIntents     // 互動按鈕
+```
+
+### DailyTaskWidget
+
+```swift
+import WidgetKit
+import SwiftUI
+```
+
+---
+
+## ⚙️ 配置要求
+
+### Target Membership
+
+- `TimerWidgetAttributes.swift`:
+  - ✅ task-creator (主應用)
+  - ✅ TimerWidgetExtension
+
+### App Groups
+
+- **Group ID**: `group.task-creator.com.task-creator`
+- **用途**: 主應用與 Widget 間數據共享
+
+### 最低系統要求
+
+- **Live Activity**: iOS 16.1+
+- **Dynamic Island**: iPhone 14 Pro+（其他機型僅顯示鎖定螢幕）
+- **Widget**: iOS 14.0+
+
+---
 
 ## ⚠️ 注意事項
-- 確保在 Target 設定中正確開啟 App Groups。
-- Widget 的刷新受 iOS 系統限制，並非實時更新。
+
+1. **Widget 刷新限制**: 受 iOS 系統限制，並非實時更新
+2. **Live Activity 限制**:
+   - 每個應用最多 8 個同時活躍的 Live Activity
+   - 系統可能在低電量或記憶體不足時終止 Live Activity
+3. **Preview 限制**: Live Activity Preview 在模擬器中支持有限，建議真機測試
+4. **Bundle ID**: 確保 Widget Extension Bundle ID 以主應用 Bundle ID 為前綴
+
+---
+
+## 🚀 測試建議
+
+### 模擬器測試
+
+- ✅ UI 布局檢查
+- ✅ 編譯驗證
+- ⚠️ Live Activity 功能受限
+
+### 真機測試（推薦）
+
+- ✅ 完整 Live Activity 功能
+- ✅ Dynamic Island 測試（iPhone 14 Pro+）
+- ✅ 鎖定螢幕顯示
+- ✅ 互動按鈕（待實現）
+- ✅ 系統倒數計時驗證

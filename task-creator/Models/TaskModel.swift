@@ -9,7 +9,7 @@ struct Category: Identifiable, Codable, Hashable {
     var isSystem: Bool = false // Prevent deletion of system categories
     
     var color: Color {
-        Color(colorHex)
+        Color(hex: colorHex)
     }
     
     // Default Categories

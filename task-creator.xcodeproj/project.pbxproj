@@ -7,10 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		D975BA232EDEB41400023C33 /* ChatGPTKit in Frameworks */ = {isa = PBXBuildFile; productRef = D975BA222EDEB41400023C33 /* ChatGPTKit */; };
 		D98AA1562EDF0B2200CA6122 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D98AA1552EDF0B2200CA6122 /* WidgetKit.framework */; };
 		D98AA1582EDF0B2200CA6122 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D98AA1572EDF0B2200CA6122 /* SwiftUI.framework */; };
 		D98AA1692EDF0B2300CA6122 /* DailyTaskWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = D98AA1532EDF0B2200CA6122 /* DailyTaskWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		D9F5E0CF2F2C6BF500991B89 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D98AA1552EDF0B2200CA6122 /* WidgetKit.framework */; };
+		D9F5E0D02F2C6BF500991B89 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D98AA1572EDF0B2200CA6122 /* SwiftUI.framework */; };
+		D9F5E0E12F2C6BF600991B89 /* TimerWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = D9F5E0CE2F2C6BF500991B89 /* TimerWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -35,6 +37,13 @@
 			remoteGlobalIDString = D9B16BC12EDDDAD500E0F507;
 			remoteInfo = "task-creator";
 		};
+		D9F5E0DF2F2C6BF600991B89 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D9B16BBA2EDDDAD400E0F507 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D9F5E0CD2F2C6BF500991B89;
+			remoteInfo = TimerWidgetExtension;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -44,6 +53,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
+				D9F5E0E12F2C6BF600991B89 /* TimerWidgetExtension.appex in Embed Foundation Extensions */,
 				D98AA1692EDF0B2300CA6122 /* DailyTaskWidgetExtension.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
@@ -58,9 +68,24 @@
 		D9B16BC22EDDDAD500E0F507 /* task-creator.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "task-creator.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D9B16BD22EDDDAD600E0F507 /* task-creatorTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "task-creatorTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D9B16BDC2EDDDAD600E0F507 /* task-creatorUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "task-creatorUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		D9F5E0CE2F2C6BF500991B89 /* TimerWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = TimerWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		D90120872F2CCA2C007E7924 /* Exceptions for "task-creator" folder in "TimerWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Models/TimerWidgetAttributes.swift,
+			);
+			target = D9F5E0CD2F2C6BF500991B89 /* TimerWidgetExtension */;
+		};
+		D90122252F2D18F4007E7924 /* Exceptions for "TimerWidget" folder in "task-creator" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				TimerWidgetLiveActivity.swift,
+			);
+			target = D9B16BC12EDDDAD500E0F507 /* task-creator */;
+		};
 		D98AA16A2EDF0B2300CA6122 /* Exceptions for "DailyTaskWidget" folder in "DailyTaskWidgetExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -75,6 +100,13 @@
 				Utils/DesignSystem.swift,
 			);
 			target = D98AA1522EDF0B2200CA6122 /* DailyTaskWidgetExtension */;
+		};
+		D9F5E0E22F2C6BF600991B89 /* Exceptions for "TimerWidget" folder in "TimerWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = D9F5E0CD2F2C6BF500991B89 /* TimerWidgetExtension */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
@@ -91,6 +123,7 @@
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				D98AA1702EDF0D9800CA6122 /* Exceptions for "task-creator" folder in "DailyTaskWidgetExtension" target */,
+				D90120872F2CCA2C007E7924 /* Exceptions for "task-creator" folder in "TimerWidgetExtension" target */,
 			);
 			path = "task-creator";
 			sourceTree = "<group>";
@@ -103,6 +136,15 @@
 		D9B16BDF2EDDDAD600E0F507 /* task-creatorUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = "task-creatorUITests";
+			sourceTree = "<group>";
+		};
+		D9F5E0D12F2C6BF500991B89 /* TimerWidget */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				D90122252F2D18F4007E7924 /* Exceptions for "TimerWidget" folder in "task-creator" target */,
+				D9F5E0E22F2C6BF600991B89 /* Exceptions for "TimerWidget" folder in "TimerWidgetExtension" target */,
+			);
+			path = TimerWidget;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -121,7 +163,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D975BA232EDEB41400023C33 /* ChatGPTKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -136,6 +177,15 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D9F5E0CB2F2C6BF500991B89 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D9F5E0D02F2C6BF500991B89 /* SwiftUI.framework in Frameworks */,
+				D9F5E0CF2F2C6BF500991B89 /* WidgetKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -158,6 +208,7 @@
 				D9B16BD52EDDDAD600E0F507 /* task-creatorTests */,
 				D9B16BDF2EDDDAD600E0F507 /* task-creatorUITests */,
 				D98AA1592EDF0B2200CA6122 /* DailyTaskWidget */,
+				D9F5E0D12F2C6BF500991B89 /* TimerWidget */,
 				D98AA1542EDF0B2200CA6122 /* Frameworks */,
 				D9B16BC32EDDDAD500E0F507 /* Products */,
 			);
@@ -170,6 +221,7 @@
 				D9B16BD22EDDDAD600E0F507 /* task-creatorTests.xctest */,
 				D9B16BDC2EDDDAD600E0F507 /* task-creatorUITests.xctest */,
 				D98AA1532EDF0B2200CA6122 /* DailyTaskWidgetExtension.appex */,
+				D9F5E0CE2F2C6BF500991B89 /* TimerWidgetExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -212,13 +264,13 @@
 			);
 			dependencies = (
 				D98AA1682EDF0B2300CA6122 /* PBXTargetDependency */,
+				D9F5E0E02F2C6BF600991B89 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				D9B16BC42EDDDAD500E0F507 /* task-creator */,
 			);
 			name = "task-creator";
 			packageProductDependencies = (
-				D975BA222EDEB41400023C33 /* ChatGPTKit */,
 			);
 			productName = "task-creator";
 			productReference = D9B16BC22EDDDAD500E0F507 /* task-creator.app */;
@@ -270,6 +322,28 @@
 			productReference = D9B16BDC2EDDDAD600E0F507 /* task-creatorUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
+		D9F5E0CD2F2C6BF500991B89 /* TimerWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D9F5E0E32F2C6BF600991B89 /* Build configuration list for PBXNativeTarget "TimerWidgetExtension" */;
+			buildPhases = (
+				D9F5E0CA2F2C6BF500991B89 /* Sources */,
+				D9F5E0CB2F2C6BF500991B89 /* Frameworks */,
+				D9F5E0CC2F2C6BF500991B89 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				D9F5E0D12F2C6BF500991B89 /* TimerWidget */,
+			);
+			name = TimerWidgetExtension;
+			packageProductDependencies = (
+			);
+			productName = TimerWidgetExtension;
+			productReference = D9F5E0CE2F2C6BF500991B89 /* TimerWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -294,6 +368,9 @@
 						CreatedOnToolsVersion = 16.4;
 						TestTargetID = D9B16BC12EDDDAD500E0F507;
 					};
+					D9F5E0CD2F2C6BF500991B89 = {
+						CreatedOnToolsVersion = 16.4;
+					};
 				};
 			};
 			buildConfigurationList = D9B16BBD2EDDDAD400E0F507 /* Build configuration list for PBXProject "task-creator" */;
@@ -306,7 +383,6 @@
 			mainGroup = D9B16BB92EDDDAD400E0F507;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				D975B9EC2EDEAEEF00023C33 /* XCRemoteSwiftPackageReference "ChatGPTKit" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = D9B16BC32EDDDAD500E0F507 /* Products */;
@@ -317,6 +393,7 @@
 				D9B16BD12EDDDAD600E0F507 /* task-creatorTests */,
 				D9B16BDB2EDDDAD600E0F507 /* task-creatorUITests */,
 				D98AA1522EDF0B2200CA6122 /* DailyTaskWidgetExtension */,
+				D9F5E0CD2F2C6BF500991B89 /* TimerWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -344,6 +421,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		D9B16BDA2EDDDAD600E0F507 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D9F5E0CC2F2C6BF500991B89 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -381,6 +465,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		D9F5E0CA2F2C6BF500991B89 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -399,6 +490,11 @@
 			target = D9B16BC12EDDDAD500E0F507 /* task-creator */;
 			targetProxy = D9B16BDD2EDDDAD600E0F507 /* PBXContainerItemProxy */;
 		};
+		D9F5E0E02F2C6BF600991B89 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D9F5E0CD2F2C6BF500991B89 /* TimerWidgetExtension */;
+			targetProxy = D9F5E0DF2F2C6BF600991B89 /* PBXContainerItemProxy */;
+		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
@@ -414,6 +510,7 @@
 				INFOPLIST_FILE = DailyTaskWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = DailyTaskWidget;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -421,7 +518,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "task-creator.com.task-creator.DailyTaskWidget";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.task-creator.taskcreator.DailyTaskWidget";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
@@ -443,6 +540,7 @@
 				INFOPLIST_FILE = DailyTaskWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = DailyTaskWidget;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -450,7 +548,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "task-creator.com.task-creator.DailyTaskWidget";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.task-creator.taskcreator.DailyTaskWidget";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
@@ -600,8 +698,10 @@
 				INFOPLIST_FILE = "task-creator/App-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.education";
+				INFOPLIST_KEY_NSCameraUsageDescription = "我們需要相機權限來偵測您的閱讀姿勢。";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "App 需要使用語音辨識來將你的語音轉成文字";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "我們需要麥克風權限來接收您的語音輸入。";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "我們需要語音辨識權限來讓您與 AI 助理對話。";
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
@@ -611,7 +711,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "task-creator.com.task-creator";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.task-creator.taskcreator";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
@@ -639,8 +739,10 @@
 				INFOPLIST_FILE = "task-creator/App-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.education";
+				INFOPLIST_KEY_NSCameraUsageDescription = "我們需要相機權限來偵測您的閱讀姿勢。";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "App 需要使用語音辨識來將你的語音轉成文字";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "我們需要麥克風權限來接收您的語音輸入。";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "我們需要語音辨識權限來讓您與 AI 助理對話。";
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
@@ -650,7 +752,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "task-creator.com.task-creator";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.task-creator.taskcreator";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
@@ -737,6 +839,65 @@
 			};
 			name = Release;
 		};
+		D9F5E0E42F2C6BF600991B89 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = S8TAUN5365;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = TimerWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = TimerWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.task-creator.taskcreator.TimerWidget";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		D9F5E0E52F2C6BF600991B89 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = S8TAUN5365;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = TimerWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = TimerWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.task-creator.taskcreator.TimerWidget";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -785,26 +946,16 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+		D9F5E0E32F2C6BF600991B89 /* Build configuration list for PBXNativeTarget "TimerWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D9F5E0E42F2C6BF600991B89 /* Debug */,
+				D9F5E0E52F2C6BF600991B89 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 /* End XCConfigurationList section */
-
-/* Begin XCRemoteSwiftPackageReference section */
-		D975B9EC2EDEAEEF00023C33 /* XCRemoteSwiftPackageReference "ChatGPTKit" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/heysaik/ChatGPTKit";
-			requirement = {
-				branch = main;
-				kind = branch;
-			};
-		};
-/* End XCRemoteSwiftPackageReference section */
-
-/* Begin XCSwiftPackageProductDependency section */
-		D975BA222EDEB41400023C33 /* ChatGPTKit */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = D975B9EC2EDEAEEF00023C33 /* XCRemoteSwiftPackageReference "ChatGPTKit" */;
-			productName = ChatGPTKit;
-		};
-/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = D9B16BBA2EDDDAD400E0F507 /* Project object */;
 }
